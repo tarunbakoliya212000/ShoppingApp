@@ -1,7 +1,31 @@
 import React from 'react';
-import { View, Text, Button, Image, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, incrementQuantity, decrementQuantity, removeFromCart } from '../actions/cartActions';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-const ProductModal = ({ product, visible, onClose, onAddToCart }) => {
+const ProductModal = ({ product, visible, onClose }) => {
+  const dispatch = useDispatch();
+  const cartItem = useSelector(state =>
+    state.cart.items.find(item => item.id === product.id)
+  );
+
+  const handleAddToCart = () => {
+    dispatch(addToCart({ ...product, quantity: 1 }));
+  };
+
+  const handleIncrement = () => {
+    dispatch(incrementQuantity(product.id));
+  };
+
+  const handleDecrement = () => {
+    if (cartItem.quantity === 1) {
+      dispatch(removeFromCart(product.id));
+    } else {
+      dispatch(decrementQuantity(product.id));
+    }
+  };
+
   return (
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
@@ -12,9 +36,22 @@ const ProductModal = ({ product, visible, onClose, onAddToCart }) => {
             {product.description}
           </Text>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.addButton} onPress={() => onAddToCart(product)}>
-              <Text style={styles.addButtonText}>Add To Cart</Text>
-            </TouchableOpacity>
+            {cartItem ? (
+              <View style={styles.cartActions}>
+                <TouchableOpacity onPress={handleDecrement} style={styles.cartButton}>
+                  <Icon name="minus" size={14} color="#000" />
+                </TouchableOpacity>
+                <Text style={styles.quantityText}>{cartItem.quantity}</Text>
+                <TouchableOpacity onPress={handleIncrement} style={styles.cartButton}>
+                  <Icon name="plus" size={14} color="#000" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
+                <Icon name="shopping-cart" size={14} color="#fff" style={styles.cartIcon} />
+                <Text style={styles.addButtonText}>Add To Cart</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
@@ -57,25 +94,46 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
   },
+  cartActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  cartButton: {
+    padding: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  quantityText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   addButton: {
-    backgroundColor: '#f4511e',
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 10,
+    backgroundColor: '#f4511e',
     borderRadius: 5,
     flex: 1,
     marginRight: 10,
-    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartIcon: {
+    marginRight: 5,
   },
   addButtonText: {
     color: '#fff',
     fontWeight: 'bold',
   },
   closeButton: {
-    backgroundColor: '#aaa',
     padding: 10,
+    backgroundColor: '#aaa',
     borderRadius: 5,
+    alignItems: 'center',
     flex: 1,
     marginLeft: 10,
-    alignItems: 'center',
   },
   closeButtonText: {
     color: '#fff',
