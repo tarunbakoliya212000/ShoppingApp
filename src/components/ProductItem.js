@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // 使用 FontAwesome 图标来显示评分
+import Icon from 'react-native-vector-icons/FontAwesome'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, incrementQuantity, decrementQuantity, removeFromCart } from '../actions/cartActions';
 
